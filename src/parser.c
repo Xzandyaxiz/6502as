@@ -12,8 +12,20 @@ void load_next_token(size_t **dims, char **source)
 
   // Skip leading whitespaces and newlines
   while (**source == ' ' || **source == '\n' || **source == '\0') {
-    (*source)++;
+    (*source)+=1;
     old_beg++;
+  }
+  
+  if (**source == ';')
+  {
+    while(**source != '\n')
+    {
+      (*source) += 1;
+      old_beg ++;
+    } 
+
+    (*dims)[0] = old_beg;
+    return;
   }
 
   // Store the beginning
@@ -23,29 +35,42 @@ void load_next_token(size_t **dims, char **source)
   // Skip trailing characters until we reach a delimiter
   while(**source != '\0' && **source != ' ' && **source != '\n')
   {
-    (*source)++;
-    old_beg++;
+    (*source)+=1;
+    old_beg++; 
   }
 
   // Store the end
   (*dims)[curr_dim] = old_beg;
 }
 
-token_type_T get_type(size_t *token, char *source)
+// Load token into a string based on its start and end positions
+void load_token_string(char **token_buf, size_t *token, char *source)
 {
-  // Store token in a temporary char buf
-  char token_buf[(token[1] - token[0]) + 1];
   size_t buf_iter = 0;
 
   for (size_t iter = token[0]; iter < token[1]; iter++)
   {
-    token_buf[buf_iter] = source[iter];
+    (*token_buf)[buf_iter] = source[iter];
     buf_iter ++;
   }
-  token_buf[buf_iter] = '\0';
+  (*token_buf)[buf_iter] = '\0';
+}
+
+token_type_T get_type(size_t *token, char *source)
+{
+  // Store token in a temporary char buf
+  char token_buf[(token[1] - token[0]) + 1];
+  char *token_buf_tmp = token_buf;
+  load_token_string(&token_buf_tmp, token, source);
 
   // (For debugging purposes)
-  printf("%s\n", token_buf); 
+  printf("%s\n", token_buf);
+
+  if (*token_buf_tmp == '.')
+    return DIRECTIVE;
+
+  if (token_buf_tmp[strlen(token_buf_tmp)] == ':')
+    return LABEL;
 }
 
 void print_token(size_t *token, char *source)
