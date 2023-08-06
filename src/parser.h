@@ -1,6 +1,7 @@
 #ifndef parser
   #define parser
 
+  // Token types
   typedef enum
   {
     DIRECTIVE,
@@ -9,9 +10,63 @@
     OPERAND
   } token_type_T;
 
+  // Opcode types
   typedef enum
   {
-    LDA, LDX, LDY
+    ADC,
+    AND,
+    ASL,
+    BCC,
+    BCS,
+    BEQ,
+    BIT,
+    BMI,
+    BNE,
+    BPL,
+    BRK,
+    BVC,
+    BVS,
+    CLC,
+    CLD,
+    CLI,
+    CLV,
+    CMP,
+    CPX,
+    CPY,
+    DEC,
+    DEY,
+    EOR,
+    INC,
+    INY,
+    JMP,
+    JSR,
+    LDA,
+    LDX,
+    LDY,
+    LSR,
+    NOP,
+    ORA,
+    PHA,
+    PHP,
+    PLA,
+    PLP,
+    ROL,
+    ROR,
+    RTI,
+    RTS,
+    SBC,
+    SEC,
+    SED,
+    SEI,
+    STA,
+    STX,
+    STY,
+    TAX,
+    TAY,
+    TSX,
+    TXA,
+    TXS,
+    TYA
   } opcode_type_T;
 
   void load_next_token(

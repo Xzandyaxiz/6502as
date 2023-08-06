@@ -15,18 +15,6 @@ void load_next_token(size_t **dims, char **source)
     (*source)+=1;
     old_beg++;
   }
-  
-  if (**source == ';')
-  {
-    while(**source != '\n')
-    {
-      (*source) += 1;
-      old_beg ++;
-    } 
-
-    (*dims)[0] = old_beg;
-    return;
-  }
 
   // Store the beginning
   (*dims)[curr_dim] = old_beg;
