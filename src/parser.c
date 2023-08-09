@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "parser.h"
 
-void load_next_token(size_t **dims, char **source)
+void load_next_instruction(size_t **dims, char **source)
 {
   (*dims)[0] = (*dims)[1];
 
@@ -12,7 +13,7 @@ void load_next_token(size_t **dims, char **source)
 
   // Skip leading whitespaces and newlines
   while (**source == ' ' || **source == '\n' || **source == '\0') {
-    (*source)+=1;
+    (*source)++;
     old_beg++;
   }
 
@@ -21,47 +22,16 @@ void load_next_token(size_t **dims, char **source)
   curr_dim ++;
 
   // Skip trailing characters until we reach a delimiter
-  while(**source != '\0' && **source != ' ' && **source != '\n')
+  while(**source != '\0' && **source != '\n')
   {
-    (*source)+=1;
-    old_beg++; 
+    (*source)++;
+    old_beg++;
   }
 
-  // Store the end
   (*dims)[curr_dim] = old_beg;
 }
 
-// Load token into a string based on its start and end positions
-void load_token_string(char **token_buf, size_t *token, char *source)
-{
-  size_t buf_iter = 0;
-
-  for (size_t iter = token[0]; iter < token[1]; iter++)
-  {
-    (*token_buf)[buf_iter] = source[iter];
-    buf_iter ++;
-  }
-  (*token_buf)[buf_iter] = '\0';
-}
-
-token_type_T get_type(size_t *token, char *source)
-{
-  // Store token in a temporary char buf
-  char token_buf[(token[1] - token[0]) + 1];
-  char *token_buf_tmp = token_buf;
-  load_token_string(&token_buf_tmp, token, source);
-
-  // (For debugging purposes)
-  printf("%s\n", token_buf);
-
-  if (*token_buf_tmp == '.')
-    return DIRECTIVE;
-
-  if (token_buf_tmp[strlen(token_buf_tmp)] == ':')
-    return LABEL;
-}
-
-void print_token(size_t *token, char *source)
+void execute_instruction(size_t *token, char *source)
 {
   size_t iter = token[0];
   while (iter < token[1])
@@ -69,10 +39,11 @@ void print_token(size_t *token, char *source)
     printf("%c", source[iter]);
     iter++;
   }
-  printf("\n");
+
+  printf("%c\n");
 }
 
-void AST_generate(char *source)
+void AST_generate(char *source, char *o_dest)
 {
   // Copy source into static buffer
   char source_buf[strlen(source)+1];
@@ -83,11 +54,20 @@ void AST_generate(char *source)
   if (token == NULL)
     return;
 
+  FILE *file = fopen(o_dest, "wb");
+  if (file == NULL)
+  {
+    printf("Could not open file in binary write mode.\n");
+    return;
+  }
+
   while (*source != '\0')
   {
-    load_next_token(&token, &source); 
+    load_next_instruction(&token, &source); 
  
-    get_type(token, source_buf);
+    // Generate instruction node and write it to target file.
+    instr_t *instr = parse_instruction(token, source_buf);
+    instr_write(&instr);
   }
 
   free(token);

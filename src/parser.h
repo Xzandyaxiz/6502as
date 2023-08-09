@@ -68,6 +68,12 @@
     TXS,
     TYA
   } opcode_type_T;
+  
+  typedef struct
+  {
+    opcode_type_T opcode;
+    char *operand;
+  } instr_t;
 
   void load_next_token(
     size_t **dims,
